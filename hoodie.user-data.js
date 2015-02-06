@@ -6,8 +6,17 @@ Hoodie.extend(function (hoodie/*, lib, utils*/) {
       return userDoc.userData || {};
     });
   }
-  function updateUserData(changedProperties) {
-    return hoodie.account.fetch().then(function(userDoc) {
+  function updateUserData(changedProperties, options) {
+    var username;
+    var path;
+    if (!options) {
+      options = {};
+    }
+
+    username = options.username || hoodie.account.username;
+    path = getUserDocPath(options);
+
+    return hoodie.request('GET', path, options).then(function(userDoc) {
       var key;
       if (! userDoc.userData) {
         userDoc.userData = {};
@@ -18,18 +27,18 @@ Hoodie.extend(function (hoodie/*, lib, utils*/) {
         }
       }
 
-      return hoodie.request('PUT', getUserDocPath(), {
-        data: JSON.stringify(userDoc),
-        contentType: 'application/json'
-      }).then(function() {
+      options.data = JSON.stringify(userDoc);
+      options.contentType = 'application/json';
+
+      return hoodie.request('PUT', path, options).then(function() {
         return userDoc.userData;
       });
     });
 
   }
 
-  function getUserDocPath () {
-    var username = hoodie.account.username;
+  function getUserDocPath (options) {
+    var username = options.username || hoodie.account.username;
     return '/_users/' + encodeURIComponent('org.couchdb.user:user/'+username);
   }
 
