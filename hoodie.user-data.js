@@ -16,6 +16,7 @@ Hoodie.extend(function (hoodie/*, lib, utils*/) {
     username = options.username || hoodie.account.username;
     path = getUserDocPath(options);
 
+    delete options.username;
     return hoodie.request('GET', path, options).then(function(userDoc) {
       var key;
       if (! userDoc.userData) {
@@ -30,6 +31,7 @@ Hoodie.extend(function (hoodie/*, lib, utils*/) {
       options.data = JSON.stringify(userDoc);
       options.contentType = 'application/json';
 
+      delete options.username;
       return hoodie.request('PUT', path, options).then(function() {
         return userDoc.userData;
       });
